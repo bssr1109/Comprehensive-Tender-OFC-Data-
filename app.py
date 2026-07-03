@@ -7,8 +7,18 @@ from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 
 st.set_page_config(page_title="OFC Route Mapping", layout="wide")
 
-SUPABASE_URL = st.secrets["SUPABASE_URL"]
-SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
+import os
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+if not SUPABASE_URL or not SUPABASE_KEY:
+    try:
+        SUPABASE_URL = st.secrets["SUPABASE_URL"]
+        SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
+    except Exception:
+        st.error("Supabase credentials missing. Add SUPABASE_URL and SUPABASE_KEY in Render Environment Variables.")
+        st.stop()
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 MASTER_NAME = "seshu"
