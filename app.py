@@ -251,7 +251,7 @@ def field_screen():
     st.markdown("### Physical Fiber Sections")
 
     for i, sec in enumerate(st.session_state.sections):
-        c1, c2, c3 = st.columns(3)
+        c1, c2, c3, c4 = st.columns([3, 3, 3, 1])
 
         sec["km_from"] = c1.number_input(
             f"KM From {i+1}",
@@ -273,6 +273,20 @@ def field_screen():
             index=0 if sec["fiber_type"] == "UG" else 1,
             key=f"type_{route['id']}_{i}"
         )
+
+        # Keep at least one section so the route form always remains usable.
+        if len(st.session_state.sections) > 1:
+            c4.write("")
+            if c4.button("Delete", key=f"delete_{route['id']}_{i}"):
+                st.session_state.sections.pop(i)
+
+                # Clear index-based widget state before the remaining rows shift up.
+                for section_index in range(len(st.session_state.sections) + 1):
+                    for field in ("from", "to", "type"):
+                        st.session_state.pop(
+                            f"{field}_{route['id']}_{section_index}", None
+                        )
+                st.rerun()
 
     if st.button("+ Add Section"):
         last_to = st.session_state.sections[-1]["km_to"]
